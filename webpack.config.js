@@ -53,7 +53,7 @@ if (isTest) {
 
   config.plugins = config.plugins.filter(p => {
     const name = p.constructor.toString();
-    const fnName = name.match(/^function (.*)\((.*\))/);
+    const fnName = name.match(/^function (.*)\((.*)\)/);
 
     const idx = [
       'DedupePlugin',
