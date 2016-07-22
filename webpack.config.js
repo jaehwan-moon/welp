@@ -1,25 +1,25 @@
 require('babel-register');
 
 const webpack = require('webpack');
-const fs      = require('fs');
-const path    = require('path'),
-      join    = path.join,
+const dotenv = require('dotenv');
+const fs = require('fs');
+const path = require('path'),
+      join = path.join,
       resolve = path.resolve;
 
-const getConfig = require('hjs-webpack');
-
-const root    = resolve(__dirname);
-const src     = join(root, 'src');
+const root = resolve(__dirname);
+const src = join(root, 'src');
 const modules = join(root, 'node_modules');
-const dest    = join(root, 'dist');
+const dest = join(root, 'dist');
 
+//Get the environment value
 const NODE_ENV = process.env.NODE_ENV;
 const isDev  = NODE_ENV === 'development';
-const isTest = NODE_ENV === 'test';
+const isTest = NDOE_ENV === 'test';
 
-const dotenv = require('dotenv');
-
+//Populates the environment variables
 const dotEnvVars = dotenv.config();
+
 const environmentEnv = dotenv.config({
   path: join(root, 'config', `${NODE_ENV}.config.js`),
   silent: true
@@ -37,12 +37,49 @@ const defines =
     __NODE_ENV__: JSON.stringify(NODE_ENV)
   });
 
-var config = getConfig({
-  isDev: isDev,
-  in: join(src, 'app.js'),
-  out: dest,
-  clearBeforeBuild: true
-});
+var config = {
+  entry: join(src, 'app.js'),
+
+  output: {
+    path: dest,
+    filename: 'bundle.js'
+  },
+
+  module: {
+    loaders: [
+      { 
+        //Style Loader
+        test:/\.css$/,
+        include:[modules],
+        loader: 'style!css'
+      },
+      { //Babel Loader
+        test:/\.js$}/, 
+        exclude: /node_modules/,
+        loader: 'babel'
+      }
+    ]
+  },
+
+  plugins: [
+    new webpack.DefinePlugin(defines),
+    new webpack.optimize.UglifyJsPlugin()
+  ],
+
+  postcss: function () {
+    return [require('autoprefixer'), require('precss')];
+  },
+
+  resolve: {
+    root: [src, module],
+    alias: {
+      'css': join(src, 'styles'),
+      'containers': join(src, 'containers'),
+      'components': join(src, 'components'),
+      'utils': join(src, 'utils')
+    }
+  }
+}
 
 if (isTest) {
   config.externals = {
@@ -62,56 +99,5 @@ if (isTest) {
     return idx < 0;
   });
 }
-
-
-config.resolve.root = [src, module];
-config.resolve.alias = {
-  'css': join(src, 'styles'),
-  'containers': join(src, 'containers'),
-  'components': join(src, 'components'),
-  'utils': join(src, 'utils')
-}; 
-
-config.plugins = [
-  new webpack.DefinePlugin(defines)
-].concat(config.plugins);
-
-const cssModulesNames = `${isDev ? '[path][name]__[local]__' : ''}[hash:base64:5]`;
-
-const matchCssLoaders = /(^|!)(css-loader)($|!)/;
-
-const findLoader = (loaders, match) => {
-  const found = loaders.filter(l => l &&
-  	l.loader && l.loader.match(match));
-  return found ? found[0] : null;
-}
-// existing css loader
-const cssloader =
-  findLoader(config.module.loaders, matchCssLoaders);
-
-const newloader = Object.assign({}, cssloader, {
-  test: /\.module\.css$/,
-  include: [src],
-  loader: cssloader.loader
-    .replace(matchCssLoaders,
-    `$1$2?modules&localIdentName=${cssModulesNames}$3`)
-});
-
-config.module.loaders.push(newloader);
-cssloader.test =
-  new RegExp(`[^module]${cssloader.test.source}`);
-cssloader.loader = newloader.loader;
-
-config.module.loaders.push({
-  test: /\.css$/,
-  include: [modules],
-  loader: 'style!css'
-});
-
-config.postcss = [].concat([
-  require('precss')({}),
-  require('autoprefixer')({}),
-  require('cssnano')({})
-]);
 
 module.exports = config;
