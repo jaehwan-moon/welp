@@ -18,7 +18,7 @@ module.exports = function(config) {
 
     //webpack configuration
     webpack: webpackConfig,
-    webpackServer: {
+    webpackMiddleware: {
       noInfo: true
     },
 

@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "set NODE_ENV=development & %CD%/node_modules/.bin/hjs-dev-server",
-    "test": "set NODE_ENV=test & karma start karma.conf.js",
+    "devServer": "webpack-dev-server",
+    "test": "karma start karma.conf.js",
     "test:watch": "npm run test -- --watch"
   },
   "keywords": [],
@@ -27,6 +27,11 @@
     "cssnano": "^3.6.2",
     "dotenv": "^2.0.0",
     "enzyme": "^2.3.0",
+    "eslint": "^2.13.1",
+    "eslint-config-airbnb": "^9.0.1",
+    "eslint-plugin-import": "^1.12.0",
+    "eslint-plugin-jsx-a11y": "^1.5.5",
+    "eslint-plugin-react": "^5.2.2",
     "expect": "^1.20.2",
     "file-loader": "^0.8.5",
     "jasmine-core": "^2.4.1",
@@ -55,6 +60,7 @@
   },
   "dependencies": {
     "font-awesome": "^4.6.3",
+    "google-maps-react": "^1.0.16",
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
     "react-router": "^2.5.2"

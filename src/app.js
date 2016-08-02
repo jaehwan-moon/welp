@@ -11,7 +11,7 @@ import makeRoutes from './routes';
 
 const routes = makeRoutes();
 
-const mountNode = document.querySelector('#root');
+const mountNode = document.getElementById('myApp');
 ReactDOM.render(
 	<App history={browserHistory}
 	     routes={routes} />, mountNode);
